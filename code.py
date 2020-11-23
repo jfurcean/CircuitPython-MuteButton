@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import time
-import board
+import board  
 from digitalio import DigitalInOut, Direction, Pull
 
 import usb_hid
@@ -65,7 +65,7 @@ controller_buttons = {
 button1_in = False
 button_index = 0
 change_button = False
-
+ 
 
 
 while True:
@@ -84,7 +84,7 @@ while True:
         start_hold = time.monotonic()
 
     # detect if the button is being held down
-    elif not button1.value and button1_in:
+    if not button1.value and button1_in:
         time_now = time.monotonic()
 
         # change the state of the button controller if
@@ -98,18 +98,20 @@ while True:
 
 
     # detect if the button has been released
-    elif button1.value and button1_in:
+    if button1.value and button1_in:
 
         # execute the keyboard commands for the active button controller
         # if state of button controller hasn't been changed
         if not change_button:
             print("{} button press".format(controller_button['name']))
             kbd.send(*controller_button['keycode'])
-            time.sleep(.1)
 
         # reset the change_button boolean if the state has been changed
         else:
             change_button = False
 
-        # update the state of the button1_in Boolean
+        # update the state of the button1_in Boolean         
         button1_in = False
+
+    
+     
