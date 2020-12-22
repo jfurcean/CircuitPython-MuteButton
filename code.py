@@ -15,6 +15,10 @@ import neopixel
 # time you want to hold the button down before it changes states
 BUTTON_HOLD_TIME = 1
 
+def button_pressed(button):
+    return not button.value
+
+
 # initialize onboard neopixel
 # this will be used to indiciate what application is enabled
 rgb_led = neopixel.NeoPixel(board.NEOPIXEL, 1)
@@ -23,16 +27,16 @@ rgb_led[0] = (0, 0, 0)
 
 kbd = Keyboard(usb_hid.devices)
 
+# Digital input with pullup on D1
+button = DigitalInOut(board.D1)
+button.direction = Direction.INPUT
+button.pull = Pull.UP
+
 # This will be used to indicate if muted or not
 # please note that an individual will have to make sure it is synced with the application
 button_led = DigitalInOut(board.D0)
 button_led.direction = Direction.OUTPUT
 
-
-# Digital input with pullup on D1
-button1 = DigitalInOut(board.D1)
-button1.direction = Direction.INPUT
-button1.pull = Pull.UP
 
 # Defines what the different states of the buttons will do
 
@@ -62,7 +66,7 @@ controller_buttons = {
 
 }
 
-button1_in = False
+button_held_in = False
 button_index = 0
 change_button = False
  
@@ -78,13 +82,13 @@ while True:
 
 
     # detect if the button is recently pressed in
-    if not button1.value and not button1_in:
+    if button_pressed(button) and not button_held_in:
         button_led.value = not button_led.value
-        button1_in = True
+        button_held_in = True
         start_hold = time.monotonic()
 
     # detect if the button is being held down
-    if not button1.value and button1_in:
+    if button_pressed(button) and button_held_in:
         time_now = time.monotonic()
 
         # change the state of the button controller if
@@ -98,7 +102,7 @@ while True:
 
 
     # detect if the button has been released
-    if button1.value and button1_in:
+    if not button_pressed(button) and button_held_in:
 
         # execute the keyboard commands for the active button controller
         # if state of button controller hasn't been changed
@@ -110,8 +114,8 @@ while True:
         else:
             change_button = False
 
-        # update the state of the button1_in Boolean         
-        button1_in = False
+        # update the state of the my_button_held_in Boolean         
+        button_held_in = False
 
     
      
